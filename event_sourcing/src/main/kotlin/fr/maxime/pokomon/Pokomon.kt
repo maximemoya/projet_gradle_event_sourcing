@@ -21,8 +21,8 @@ data class Pokomon(
         const val categoryView = "pokomon_views"
         fun invoke(id: PokomonId): Pokomon? {
             var pokomon: Pokomon? = null
-            if (dataBaseEventPokomon.events[categoryEvent]?.get(id) != null) {
-                dataBaseEventPokomon.events[categoryEvent]?.get(id)?.forEach { event ->
+            if (dataBaseEventPokomon.events[categoryEvent]?.get(id.streamId) != null) {
+                dataBaseEventPokomon.events[categoryEvent]?.get(id.streamId)?.forEach { event ->
                     when (event.type) {
                         PokomonCreatedEvent.type -> {
                             val data = PokomonCreatedEvent.getData(event.data)
@@ -62,8 +62,8 @@ fun pokomonEventReader(id: PokomonId): Pokomon? {
                 "\n -> reading in ${Pokomon.categoryEvent} at id: $id"
     )
 
-    if (dataBaseEventPokomon.events[Pokomon.categoryEvent]?.get(id) != null) {
-        dataBaseEventPokomon.events[Pokomon.categoryEvent]?.get(id)?.forEach { event ->
+    if (dataBaseEventPokomon.events[Pokomon.categoryEvent]?.get(id.streamId) != null) {
+        dataBaseEventPokomon.events[Pokomon.categoryEvent]?.get(id.streamId)?.forEach { event ->
 
             when (event.type) {
 

@@ -21,8 +21,8 @@ data class Kobolt(
         const val categoryView = "kobolt_views"
         fun invoke(id: KoboltId): Kobolt? {
             var kobolt: Kobolt? = null
-            if (dataBaseEventKobolt.events[categoryEvent]?.get(id) != null){
-                dataBaseEventKobolt.events[categoryEvent]?.get(id)?.forEach { event ->
+            if (dataBaseEventKobolt.events[categoryEvent]?.get(id.streamId) != null){
+                dataBaseEventKobolt.events[categoryEvent]?.get(id.streamId)?.forEach { event ->
                     when (event.type) {
                         KoboltCreatedEvent.type -> {
                             val data = KoboltCreatedEvent.getData(event.data)
@@ -60,8 +60,8 @@ fun koboltEventReader(id: KoboltId): Kobolt? {
         "Generate ${Kobolt::class.java.simpleName}:" +
                 "\n -> reading in ${Kobolt.categoryEvent} at id: $id"
     )
-    if (dataBaseEventKobolt.events[Kobolt.categoryEvent]?.get(id) != null){
-        dataBaseEventKobolt.events[Kobolt.categoryEvent]?.get(id)?.forEach { event ->
+    if (dataBaseEventKobolt.events[Kobolt.categoryEvent]?.get(id.streamId) != null){
+        dataBaseEventKobolt.events[Kobolt.categoryEvent]?.get(id.streamId)?.forEach { event ->
             when (event.type) {
                 KoboltCreatedEvent.type -> {
                     val data = KoboltCreatedEvent.getData(event.data)

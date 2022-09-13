@@ -4,7 +4,6 @@ import fr.maxime.kobolt.Kobolt
 import fr.maxime.kobolt.command.KoboltRebirthEvent
 import fr.maxime.kobolt.command.KoboltRenamedEvent
 import fr.maxime.kobolt.kobolt_id.KoboltId
-import fr.maxime.kobolt.kobolt_id.KoboltIdSerializer
 import fr.maxime.technicals.Event
 import fr.maxime.technicals.InstantSerializer
 import fr.maxime.technicals.ViewEvent
@@ -23,7 +22,6 @@ import java.time.Instant
 
 @Serializable
 data class KoboltView(
-    @Serializable(with = KoboltIdSerializer::class)
     val koboltId: KoboltId,
     val name: String,
     @Serializable(with = InstantSerializer::class)

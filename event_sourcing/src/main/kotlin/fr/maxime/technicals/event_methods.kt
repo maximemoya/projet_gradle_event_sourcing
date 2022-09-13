@@ -80,7 +80,7 @@ val dataBaseEventV1 = LocalDataBaseEventV1()
 @Serializable
 class LocalDataBaseEventGeneric<T : Id> {
 
-    val events = mutableMapOf<String, MutableMap<T, MutableList<Event>>>()
+    val events = mutableMapOf<String, MutableMap<String, MutableList<Event>>>()
 
     fun addEvent(categoryEvent: String, id: T, event: Event) {
         println(
@@ -89,12 +89,12 @@ class LocalDataBaseEventGeneric<T : Id> {
         )
 
         if (events[categoryEvent] == null) {
-            events[categoryEvent] = mutableMapOf(id to mutableListOf(event))
+            events[categoryEvent] = mutableMapOf(id.streamId to mutableListOf(event))
         } else {
-            if (events[categoryEvent]!![id] == null) {
-                events[categoryEvent]!![id] = mutableListOf(event)
+            if (events[categoryEvent]!![id.streamId] == null) {
+                events[categoryEvent]!![id.streamId] = mutableListOf(event)
             } else {
-                events[categoryEvent]!![id]!!.add(event)
+                events[categoryEvent]!![id.streamId]!!.add(event)
             }
         }
         println()
@@ -121,10 +121,10 @@ class LocalDataBaseEventGeneric<T : Id> {
         }
     }
 
-    fun exist(categoryEvent: String, id: T) = events[categoryEvent]?.get(id) != null
+    fun exist(categoryEvent: String, id: T) = events[categoryEvent]?.get(id.streamId) != null
 
     fun deleteEvents(categoryEvent: String, id: T): Boolean {
-        val result = events[categoryEvent]?.remove(id) != null
+        val result = events[categoryEvent]?.remove(id.streamId) != null
         if (result) {
             val dataBase = allDataBaseEvent[categoryEvent]
             if (dataBase != null) {

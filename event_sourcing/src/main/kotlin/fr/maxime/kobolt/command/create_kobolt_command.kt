@@ -3,7 +3,6 @@ package fr.maxime.kobolt.command
 import fr.maxime.kobolt.Kobolt
 import fr.maxime.kobolt.command.KoboltCreatedEvent.koboltCreatedEventHandler
 import fr.maxime.kobolt.kobolt_id.KoboltId
-import fr.maxime.kobolt.kobolt_id.KoboltIdSerializer
 import fr.maxime.kobolt.query.KoboltView
 import fr.maxime.technicals.Event
 import fr.maxime.technicals.InstantSerializer
@@ -31,7 +30,6 @@ fun createKoboltCommand(koboltId: KoboltId, name: String, birth: Instant) {
 
 @Serializable
 data class KoboltCreatedData(
-    @Serializable(with = KoboltIdSerializer::class)
     val koboltId: KoboltId,
     val name: String,
     @Serializable(with = InstantSerializer::class)

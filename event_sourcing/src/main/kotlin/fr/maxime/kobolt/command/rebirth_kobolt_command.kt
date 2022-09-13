@@ -3,7 +3,6 @@ package fr.maxime.kobolt.command
 import fr.maxime.kobolt.Kobolt
 import fr.maxime.kobolt.command.KoboltRebirthEvent.koboltRebirthEventHandler
 import fr.maxime.kobolt.kobolt_id.KoboltId
-import fr.maxime.kobolt.kobolt_id.KoboltIdSerializer
 import fr.maxime.technicals.Event
 import fr.maxime.technicals.InstantSerializer
 import fr.maxime.technicals.dataBaseEventKobolt
@@ -25,7 +24,6 @@ fun rebirthKoboltCommand(koboltId: KoboltId, birth: Instant) {
 
 @Serializable
 data class KoboltRebirthData(
-    @Serializable(with = KoboltIdSerializer::class)
     val koboltId: KoboltId,
     @Serializable(with = InstantSerializer::class)
     val birth: Instant,

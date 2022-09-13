@@ -6,7 +6,6 @@ import fr.maxime.kobolt.command.rebirthKoboltCommand
 import fr.maxime.kobolt.command.renameKoboltCommand
 import fr.maxime.kobolt.koboltEventReader
 import fr.maxime.kobolt.kobolt_id.KoboltId
-import fr.maxime.kobolt.kobolt_id.KoboltIdNullableSerializer
 import fr.maxime.kobolt.kobolt_id.KoboltIdSerializer
 import fr.maxime.kobolt.query.KoboltView
 import fr.maxime.kobolt.query.getKoboltViewQuery
@@ -17,7 +16,6 @@ import fr.maxime.pokomon.pokomon_id.PokomonId
 import fr.maxime.technicals.InstantSerializer
 import fr.maxime.technicals.dataBaseEventKobolt
 import fr.maxime.technicals.dataBaseViewKobolt
-import fr.maxime.technicals.getViewsFromCategory
 import fr.maxime.technicals.jsonTool
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -42,11 +40,11 @@ import java.util.UUID
 
 fun main() {
 
-    scenarioKoboltA()
-//    scenarioKoboltB()
+//    scenarioKoboltA()
 //    scenarioPokomonA()
+//    scenarioKoboltB()
 
-//    scenarioHttp4K()
+    scenarioHttp4K()
 
 }
 
@@ -156,26 +154,26 @@ fun scenarioKoboltB() {
     }
 }
 
-@Serializable
 data class KoboltPostDto(
     val name: String = "kobolt",
-    @Serializable(with = InstantSerializer::class)
+//    @Serializable(with = InstantSerializer::class)
     val birth: Instant = Instant.now(),
 )
 
-@Serializable
 data class KoboltPutDto(
-    @Serializable(with = KoboltIdSerializer::class)
-    val koboltId: KoboltId,
+//    @Serializable(with = KoboltIdSerializer::class)
+    private val koboltId: String,
     val name: String? = null,
-    @Serializable(with = InstantSerializer::class)
+//    @Serializable(with = InstantSerializer::class)
     val birth: Instant? = null,
-)
+){
+    fun getKoboltId():KoboltId{
+        return KoboltId(koboltId)
+    }
+}
 
-@Serializable
 data class KoboltGetDto(
-    @Serializable(with = KoboltIdNullableSerializer::class)
-    val koboltId: KoboltId? = null,
+    val koboltId: String? = null,
 )
 
 fun scenarioHttp4K() {
@@ -205,40 +203,40 @@ fun scenarioHttp4K() {
 
         "/kobolt" bind PUT to { request ->
             val body = koboltPutLens(request)
-            val oldKobolt = Kobolt.invoke(body.koboltId)
+            val oldKobolt = Kobolt.invoke(body.getKoboltId())
             if (oldKobolt != null) {
                 if (body.name != null) {
                     val oldName = oldKobolt.name
                     if (oldName != body.name) {
-                        renameKoboltCommand(body.koboltId, body.name)
+                        renameKoboltCommand(body.getKoboltId(), body.name)
                     }
                 }
                 if (body.birth != null) {
                     val oldBirth = oldKobolt.birth
                     if (oldBirth != body.birth) {
-                        rebirthKoboltCommand(body.koboltId, body.birth)
+                        rebirthKoboltCommand(body.getKoboltId(), body.birth)
                     }
                 }
-                Response(OK).body("modify successfully kobolt: ${body.koboltId}")
+                Response(OK).body("modify successfully kobolt: ${body.getKoboltId()}")
             } else {
-                Response(NOT_FOUND).body("can not find kobolt: ${body.koboltId}")
+                Response(NOT_FOUND).body("can not find kobolt: ${body.getKoboltId()}")
             }
         },
 
         "/kobolt" bind GET to { request ->
             val body = koboltGetLens(request)
             if (body.koboltId == null) {
-                val views = getViewsFromCategory<KoboltView>(Kobolt.categoryView)
+                val views = dataBaseViewKobolt.getViewsFromCategory<KoboltView>(Kobolt.categoryView)
                 val viewsJson = views.map { jsonTool.encodeToJsonElement(it) }
                 Response(OK).body(viewsJson.toString())
             } else {
                 val view =
-                    dataBaseViewKobolt.getViewFromCategoryAndId<KoboltView>(Kobolt.categoryView, body.koboltId)
+                    dataBaseViewKobolt.getViewFromCategoryAndId<KoboltView>(Kobolt.categoryView, KoboltId(body.koboltId))
                 if (view != null) {
                     val viewJson = jsonTool.encodeToJsonElement(view)
                     Response(OK).body(viewJson.toString())
                 } else {
-                    Response(NOT_FOUND).body("can not find kobolt: ${body.koboltId}")
+                    Response(NOT_FOUND).body("can not find kobolt: ${body}")
                 }
             }
         },
@@ -249,12 +247,12 @@ fun scenarioHttp4K() {
                 Response(BAD_REQUEST).body("no kobolt to delete")
             } else {
                 if (
-                    dataBaseViewKobolt.deleteViewFromCategoryAndId(Kobolt.categoryView, body.koboltId)
-                    && dataBaseEventKobolt.deleteEvents(Kobolt.categoryEvent, body.koboltId)
+                    dataBaseViewKobolt.deleteViewFromCategoryAndId(Kobolt.categoryView, KoboltId(body.koboltId))
+                    && dataBaseEventKobolt.deleteEvents(Kobolt.categoryEvent, KoboltId(body.koboltId))
                 ) {
-                    Response(OK).body("delete successfully kobolt: ${body.koboltId}")
+                    Response(OK).body("delete successfully kobolt: ${body}")
                 } else {
-                    Response(OK).body("can not find kobolt: ${body.koboltId}")
+                    Response(OK).body("can not find kobolt: ${body}")
                 }
             }
         },

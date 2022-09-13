@@ -25,30 +25,13 @@ object KoboltIdSerializer : KSerializer<KoboltId> {
     }
 }
 
-object KoboltIdNullableSerializer : KSerializer<KoboltId?> {
-    override val descriptor = PrimitiveSerialDescriptor("KoboltId?", PrimitiveKind.STRING)
-
-    override fun deserialize(decoder: Decoder): KoboltId? {
-        val value = decoder.decodeString()
-        return if (value != "null") {
-            KoboltId(decoder.decodeString())
-        } else {
-            null
-        }
-
-    }
-
-    override fun serialize(encoder: Encoder, value: KoboltId?) {
-        encoder.encodeString(value?.streamId ?: "null")
-    }
-}
-
 // ----
 // ID :
 // ----
 
 @Serializable(with = KoboltIdSerializer::class)
 class KoboltId(override val streamId: String) : Id {
+
     constructor(
         uid: UUID
     ) : this(streamId = setId(uid))

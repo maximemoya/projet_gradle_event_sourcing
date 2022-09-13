@@ -3,7 +3,6 @@ package fr.maxime.kobolt.command
 import fr.maxime.kobolt.Kobolt
 import fr.maxime.kobolt.command.KoboltRenamedEvent.koboltRenamedEventHandler
 import fr.maxime.kobolt.kobolt_id.KoboltId
-import fr.maxime.kobolt.kobolt_id.KoboltIdSerializer
 import fr.maxime.technicals.Event
 import fr.maxime.technicals.dataBaseEventKobolt
 import fr.maxime.technicals.jsonTool
@@ -23,7 +22,6 @@ fun renameKoboltCommand(koboltId: KoboltId, name: String) {
 
 @Serializable
 data class KoboltRenamedData(
-    @Serializable(with = KoboltIdSerializer::class)
     val koboltId: KoboltId,
     val name: String,
 )
