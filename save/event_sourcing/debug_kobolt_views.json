@@ -1,0 +1,16 @@
+{
+    "views": {
+        "kobolt_views": {
+            "1047d9ca-a9a3-45ca-83ac-9c76c6bcebb1": {
+                "koboltId": "1047d9ca-a9a3-45ca-83ac-9c76c6bcebb1",
+                "name": "kbw460",
+                "birth": "1956-07-08T09:00:00Z"
+            },
+            "d9e11ae9-a980-46d3-8a9d-419870b7f6d1": {
+                "koboltId": "d9e11ae9-a980-46d3-8a9d-419870b7f6d1",
+                "name": "kb00x32",
+                "birth": "1960-01-03T08:00:00Z"
+            }
+        }
+    }
+}

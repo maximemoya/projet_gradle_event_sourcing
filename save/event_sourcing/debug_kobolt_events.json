@@ -1,0 +1,62 @@
+{
+    "events": {
+        "kobolt_events": {
+            "1047d9ca-a9a3-45ca-83ac-9c76c6bcebb1": [
+                {
+                    "type": "kobolt_created",
+                    "version": 1,
+                    "data": {
+                        "koboltId": "1047d9ca-a9a3-45ca-83ac-9c76c6bcebb1",
+                        "name": "kb1",
+                        "birth": "1950-01-03T08:00:00Z"
+                    },
+                    "eventId": "30784f3c-715d-4609-a731-d196aa942b37",
+                    "timestamp": "2022-09-11T17:54:29.824308400Z"
+                },
+                {
+                    "type": "kobolt_renamed",
+                    "version": 1,
+                    "data": {
+                        "koboltId": "1047d9ca-a9a3-45ca-83ac-9c76c6bcebb1",
+                        "name": "kbw460"
+                    },
+                    "eventId": "27a48d9c-f0a0-4052-ba28-dec6e3392620",
+                    "timestamp": "2022-09-11T17:54:29.847309600Z"
+                },
+                {
+                    "type": "kobolt_rebirth",
+                    "version": 1,
+                    "data": {
+                        "koboltId": "1047d9ca-a9a3-45ca-83ac-9c76c6bcebb1",
+                        "birth": "1956-07-08T09:00:00Z"
+                    },
+                    "eventId": "3c4c4271-0b22-489d-a769-80913bc3784f",
+                    "timestamp": "2022-09-11T17:54:29.851308800Z"
+                }
+            ],
+            "d9e11ae9-a980-46d3-8a9d-419870b7f6d1": [
+                {
+                    "type": "kobolt_created",
+                    "version": 1,
+                    "data": {
+                        "koboltId": "d9e11ae9-a980-46d3-8a9d-419870b7f6d1",
+                        "name": "kb2",
+                        "birth": "1960-01-03T08:00:00Z"
+                    },
+                    "eventId": "f0d68fd7-317a-4d9a-ad30-be76086f95e4",
+                    "timestamp": "2022-09-11T17:54:29.853309800Z"
+                },
+                {
+                    "type": "kobolt_renamed",
+                    "version": 1,
+                    "data": {
+                        "koboltId": "d9e11ae9-a980-46d3-8a9d-419870b7f6d1",
+                        "name": "kb00x32"
+                    },
+                    "eventId": "c949f9a4-5035-48c2-8882-3889e6b97b40",
+                    "timestamp": "2022-09-11T17:54:29.856309Z"
+                }
+            ]
+        }
+    }
+}
