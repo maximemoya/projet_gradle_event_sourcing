@@ -1,16 +1,16 @@
 package fr.maxime.pokomon.query
 
-import fr.maxime.technicals.Event
-import fr.maxime.technicals.InstantSerializer
-import fr.maxime.technicals.ViewEvent
-import fr.maxime.technicals.allDataBaseGenericView
-import fr.maxime.technicals.dataBaseViewPokomon
-import fr.maxime.technicals.jsonTool
 import fr.maxime.pokomon.Pokomon
 import fr.maxime.pokomon.command.PokomonRebirthEvent
 import fr.maxime.pokomon.command.PokomonRenamedEvent
 import fr.maxime.pokomon.pokomon_id.PokomonId
 import fr.maxime.pokomon.pokomon_id.PokomonIdSerializer
+import fr.maxime.technicals.Event
+import fr.maxime.technicals.InstantSerializer
+import fr.maxime.technicals.ViewEvent
+import fr.maxime.technicals.allInMemoryDataBaseGenericView
+import fr.maxime.technicals.inMemoryViewsPokomon
+import fr.maxime.technicals.jsonTool
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.encodeToJsonElement
@@ -39,10 +39,10 @@ data class PokomonView(
                 val data = PokomonRenamedEvent.getData(event.data)
                 if (data != null) {
                     val view =
-                        dataBaseViewPokomon.getViewFromCategoryAndId<PokomonView>(Pokomon.categoryView, data.pokomonId)
+                        inMemoryViewsPokomon.getViewFromCategoryAndId<PokomonView>(Pokomon.categoryView, data.pokomonId)
                     if (view != null) {
                         pokomonView = view.copy(name = data.name)
-                        dataBaseViewPokomon.views[Pokomon.categoryView]?.set(
+                        inMemoryViewsPokomon.views[Pokomon.categoryView]?.set(
                             data.pokomonId.streamId,
                             jsonTool.encodeToJsonElement(pokomonView)
                         )
@@ -54,10 +54,10 @@ data class PokomonView(
                 val data = PokomonRebirthEvent.getData(event.data)
                 if (data != null) {
                     val view =
-                        dataBaseViewPokomon.getViewFromCategoryAndId<PokomonView>(Pokomon.categoryView, data.pokomonId)
+                        inMemoryViewsPokomon.getViewFromCategoryAndId<PokomonView>(Pokomon.categoryView, data.pokomonId)
                     if (view != null) {
                         pokomonView = view.copy(birth = data.birth)
-                        dataBaseViewPokomon.views[Pokomon.categoryView]?.set(
+                        inMemoryViewsPokomon.views[Pokomon.categoryView]?.set(
                             data.pokomonId.streamId,
                             jsonTool.encodeToJsonElement(pokomonView)
                         )
@@ -68,7 +68,7 @@ data class PokomonView(
         }
 
         File("save/event_sourcing/debug_${Pokomon.categoryView}.json")
-            .writeText(jsonTool.encodeToString(allDataBaseGenericView[Pokomon.categoryView]))
+            .writeText(jsonTool.encodeToString(allInMemoryDataBaseGenericView[Pokomon.categoryView]))
 
         return pokomonView
     }

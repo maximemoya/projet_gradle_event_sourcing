@@ -1,5 +1,10 @@
 package fr.maxime
 
+import fr.maxime.excel_adapter.excel_file_reader.kobolts.ExcelKoboltCreationDto
+import fr.maxime.excel_adapter.excel_file_reader.kobolts.excelKoboltCreationColumns
+import fr.maxime.excel_adapter.excel_file_reader.technicals.readExcelFileFromXlsxInputStream
+import fr.maxime.exposed.KoboltViewsTable
+import fr.maxime.exposed.dataBaseViews
 import fr.maxime.kobolt.Kobolt
 import fr.maxime.kobolt.command.createKoboltCommand
 import fr.maxime.kobolt.command.rebirthKoboltCommand
@@ -13,9 +18,10 @@ import fr.maxime.pokomon.command.createPokomonCommand
 import fr.maxime.pokomon.command.rebirthPokomonCommand
 import fr.maxime.pokomon.command.renamePokomonCommand
 import fr.maxime.pokomon.pokomon_id.PokomonId
+import fr.maxime.technicals.Event
 import fr.maxime.technicals.InstantSerializer
 import fr.maxime.technicals.dataBaseEventKobolt
-import fr.maxime.technicals.dataBaseViewKobolt
+import fr.maxime.technicals.inMemoryViewsKobolt
 import fr.maxime.technicals.jsonTool
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -31,10 +37,18 @@ import org.http4k.core.Status.Companion.BAD_REQUEST
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.format.Jackson.auto
+import org.http4k.lens.MultipartFormField
+import org.http4k.lens.MultipartFormFile
+import org.http4k.lens.Validator
+import org.http4k.lens.multipartForm
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.server.ApacheServer
 import org.http4k.server.asServer
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 import java.util.UUID
 
@@ -82,7 +96,7 @@ fun scenarioKoboltA() {
                 "\nGET ALL KOBOLT VIEWS"
     )
 
-    val views = dataBaseViewKobolt.getViewsFromCategory<KoboltView>(Kobolt.categoryView)
+    val views = inMemoryViewsKobolt.getViewsFromCategory<KoboltView>(Kobolt.categoryView)
     val jsonViews = views.map { jsonTool.encodeToJsonElement(it) }
     println(jsonViews)
 
@@ -154,6 +168,14 @@ fun scenarioKoboltB() {
     }
 }
 
+// --------
+// ROUTES :
+// --------
+
+val fileInputStream = MultipartFormFile.required("inputstream")
+val universeField = MultipartFormField.string().map { value -> KoboltId(value) }.optional("koboltId")
+val exelFormBody = Body.multipartForm(Validator.Strict, fileInputStream, universeField).toLens()
+
 data class KoboltPostDto(
     val name: String = "kobolt",
 //    @Serializable(with = InstantSerializer::class)
@@ -166,15 +188,21 @@ data class KoboltPutDto(
     val name: String? = null,
 //    @Serializable(with = InstantSerializer::class)
     val birth: Instant? = null,
-){
-    fun getKoboltId():KoboltId{
+) {
+    fun getKoboltId(): KoboltId {
         return KoboltId(koboltId)
     }
 }
 
 data class KoboltGetDto(
-    val koboltId: String? = null,
-)
+    private val koboltId: String? = null,
+) {
+    fun getKoboltId(): KoboltId? {
+        return if (koboltId != null) {
+            KoboltId(koboltId)
+        } else null
+    }
+}
 
 fun scenarioHttp4K() {
 
@@ -197,8 +225,8 @@ fun scenarioHttp4K() {
 
         "/kobolt" bind POST to { request ->
             val body = koboltPostLens(request)
-            val id = createKoboltCommand(KoboltId(UUID.randomUUID()), body.name, body.birth)
-            Response(OK).body("kobolt successfully created: $id")
+            val koboltId = createKoboltCommand(KoboltId(UUID.randomUUID()), body.name, body.birth)
+            Response(OK).body("kobolt successfully created: $koboltId")
         },
 
         "/kobolt" bind PUT to { request ->
@@ -217,47 +245,155 @@ fun scenarioHttp4K() {
                         rebirthKoboltCommand(body.getKoboltId(), body.birth)
                     }
                 }
-                Response(OK).body("modify successfully kobolt: ${body.getKoboltId()}")
+                Response(OK).body("modify successfully koboltId: ${body.getKoboltId()}")
             } else {
-                Response(NOT_FOUND).body("can not find kobolt: ${body.getKoboltId()}")
+                Response(NOT_FOUND).body("can not find koboltId: ${body.getKoboltId()}")
             }
         },
 
         "/kobolt" bind GET to { request ->
             val body = koboltGetLens(request)
-            if (body.koboltId == null) {
-                val views = dataBaseViewKobolt.getViewsFromCategory<KoboltView>(Kobolt.categoryView)
-                val viewsJson = views.map { jsonTool.encodeToJsonElement(it) }
-                Response(OK).body(viewsJson.toString())
-            } else {
-                val view =
-                    dataBaseViewKobolt.getViewFromCategoryAndId<KoboltView>(Kobolt.categoryView, KoboltId(body.koboltId))
-                if (view != null) {
-                    val viewJson = jsonTool.encodeToJsonElement(view)
+            val koboltId = body.getKoboltId()
+            if (koboltId == null) {
+
+                // ----------
+                // DataBase :
+                // ----------
+
+                transaction(dataBaseViews) {
+                    val query = KoboltViewsTable.selectAll()
+                    val results = query.map {
+                        KoboltView(
+                            KoboltId(it[KoboltViewsTable.koboltId]),
+                            it[KoboltViewsTable.name],
+                            it[KoboltViewsTable.birth]
+                        )
+                    }
+                    val viewJson = jsonTool.encodeToJsonElement(results)
                     Response(OK).body(viewJson.toString())
-                } else {
-                    Response(NOT_FOUND).body("can not find kobolt: ${body}")
                 }
+
+                // ----------
+                // InMemory :
+                // ----------
+
+//                val views = inMemoryViewsKobolt.getViewsFromCategory<KoboltView>(Kobolt.categoryView)
+//                val viewsJson = views.map { jsonTool.encodeToJsonElement(it) }
+//                Response(OK).body(viewsJson.toString())
+
+            } else {
+
+                // ----------
+                // DataBase :
+                // ----------
+
+                transaction(dataBaseViews) {
+                    val query = KoboltViewsTable.select { KoboltViewsTable.koboltId eq koboltId.streamId }
+                    val results = query.map {
+                        KoboltView(
+                            KoboltId(it[KoboltViewsTable.koboltId]),
+                            it[KoboltViewsTable.name],
+                            it[KoboltViewsTable.birth]
+                        )
+                    }
+                    if (results.isNotEmpty()) {
+                        val viewJson = jsonTool.encodeToJsonElement(results[0])
+                        Response(OK).body(viewJson.toString())
+                    } else {
+                        Response(NOT_FOUND).body("can not find koboltId: $koboltId")
+                    }
+                }
+
+                // ----------
+                // InMemory :
+                // ----------
+
+//                val view =
+//                    inMemoryViewsKobolt.getViewFromCategoryAndId<KoboltView>(
+//                        Kobolt.categoryView,
+//                        koboltId
+//                    )
+//                if (view != null) {
+//                    val viewJson = jsonTool.encodeToJsonElement(view)
+//                    Response(OK).body(viewJson.toString())
+//                } else {
+//                    Response(NOT_FOUND).body("can not find koboltId: $koboltId")
+//                }
             }
         },
 
         "/kobolt" bind DELETE to { request ->
             val body = koboltGetLens(request)
-            if (body.koboltId == null) {
+            val koboltId = body.getKoboltId()
+            if (koboltId == null) {
                 Response(BAD_REQUEST).body("no kobolt to delete")
             } else {
+
+                // ----------
+                // DataBase :
+                // ----------
+
+                transaction(dataBaseViews) {
+                    KoboltViewsTable.deleteWhere { KoboltViewsTable.koboltId eq koboltId.streamId }
+                }
+
+                // ----------
+                // InMemory :
+                // ----------
+
+                if (dataBaseEventKobolt.exist(Kobolt.categoryEvent, koboltId)) {
+
+                    // todo: 13/09/2022 improve delete EVENT
+
+                    val kobolt = Kobolt.invoke(koboltId)
+                    if (kobolt != null) {
+                        dataBaseEventKobolt.addEvent(
+                            Kobolt.categoryEvent,
+                            koboltId,
+                            Event("aggregate_deleted", 1)
+                        )
+                    }
+                }
                 if (
-                    dataBaseViewKobolt.deleteViewFromCategoryAndId(Kobolt.categoryView, KoboltId(body.koboltId))
-                    && dataBaseEventKobolt.deleteEvents(Kobolt.categoryEvent, KoboltId(body.koboltId))
+                    inMemoryViewsKobolt.deleteViewFromCategoryAndId(Kobolt.categoryView, koboltId)
                 ) {
-                    Response(OK).body("delete successfully kobolt: ${body}")
+                    Response(OK).body("delete successfully koboltId: $koboltId")
                 } else {
-                    Response(OK).body("can not find kobolt: ${body}")
+                    Response(OK).body("can not find koboltId: $koboltId")
                 }
             }
         },
 
-        )
+        "/kobolt/excel" bind POST to { request ->
+
+            val receivedForm = exelFormBody(request)
+
+            val koboltIdParam = universeField(receivedForm)
+            if (koboltIdParam != null) {
+                println("test koboltId = $koboltIdParam")
+            }
+
+            val excelReaderResult = readExcelFileFromXlsxInputStream<ExcelKoboltCreationDto>(
+                fileInputStream(receivedForm).content,
+                excelKoboltCreationColumns,
+            )
+
+            excelReaderResult.results.forEach { println(it) }
+            println("--- ERRORS ---")
+            excelReaderResult.errors.forEach { println(it) }
+            println()
+
+            val koboltsIds =
+                excelReaderResult.results.map { result ->
+                    createKoboltCommand(KoboltId(UUID.randomUUID()), result.name, Instant.parse(result.birth))
+                }
+
+            Response(OK).body("kobolt successfully created: (${koboltsIds.size})\n$koboltsIds" +
+                    "\n\nErrors logged:" +
+                    "\n${excelReaderResult.errors}")
+        }
+
+    )
     httpHandler.asServer(ApacheServer(port = 8080)).start()
 
 //    val httpClient: HttpHandler = OkHttp()

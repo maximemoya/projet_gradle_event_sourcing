@@ -19,7 +19,7 @@ import java.util.UUID
 data class Event(
     val type: String,
     val version: Int,
-    val data: JsonElement?,
+    val data: JsonElement? = null,
     @Serializable(with = UUIDSerializer::class)
     val eventId: UUID = UUID.randomUUID(),
     @Serializable(with = InstantSerializer::class)
@@ -113,8 +113,6 @@ class LocalDataBaseEventGeneric<T : Id> {
                 }
             }
         }
-
-
 
         categoryEventListener[categoryEvent]?.forEach { viewEvent ->
             viewEvent.update(event)

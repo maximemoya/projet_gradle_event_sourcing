@@ -1,6 +1,8 @@
-import fr.maxime.scenarioKoboltA
+import fr.maxime.scenarioHttp4K
 
 fun main(args: Array<String>) {
-    scenarioKoboltA()
-//    exposed()
+//    scenarioKoboltA()
+//    testDataBase()
+    scenarioHttp4K()
+
 }

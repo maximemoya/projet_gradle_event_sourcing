@@ -22,6 +22,10 @@ data class Kobolt(
         fun invoke(id: KoboltId): Kobolt? {
             var kobolt: Kobolt? = null
             if (dataBaseEventKobolt.events[categoryEvent]?.get(id.streamId) != null){
+                if (dataBaseEventKobolt.events[categoryEvent]?.get(id.streamId)!!.last().type == "aggregate_deleted"){
+                    return null
+                }
+
                 dataBaseEventKobolt.events[categoryEvent]?.get(id.streamId)?.forEach { event ->
                     when (event.type) {
                         KoboltCreatedEvent.type -> {

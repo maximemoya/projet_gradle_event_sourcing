@@ -14,7 +14,7 @@ repositories {
 val exposedVersion: String by project
 
 dependencies {
-
+    implementation(kotlin("stdlib-jdk8"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
     implementation(kotlin("reflect"))
 
@@ -25,15 +25,23 @@ dependencies {
     implementation("org.http4k:http4k-format-jackson")
     implementation("org.http4k:http4k-testing-approval")
     implementation("org.http4k:http4k-template-handlebars")
+    implementation("org.http4k:http4k-multipart")
     implementation("org.slf4j:slf4j-nop:1.7.36") // Suppress log warnings from handlebars
 
+    implementation("com.auth0:java-jwt:3.19.2")
+
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+//    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
 
     implementation("org.postgresql:postgresql:42.3.6")
+    implementation("org.flywaydb:flyway-core:8.5.12")
 //    implementation("com.zaxxer:HikariCP:5.0.1")
 //    implementation("com.h2database:h2:2.1.210")
+
+    implementation("org.apache.poi:poi-ooxml:4.1.1")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
     implementation("org.junit.jupiter:junit-jupiter:5.8.1")
     testImplementation ("org.jetbrains.kotlin:kotlin-test-common")

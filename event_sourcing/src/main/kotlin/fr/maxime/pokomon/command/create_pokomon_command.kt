@@ -9,7 +9,7 @@ import fr.maxime.technicals.Event
 import fr.maxime.technicals.InstantSerializer
 import fr.maxime.technicals.addViewEventToEventListener
 import fr.maxime.technicals.dataBaseEventPokomon
-import fr.maxime.technicals.dataBaseViewPokomon
+import fr.maxime.technicals.inMemoryViewsPokomon
 import fr.maxime.technicals.jsonTool
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -53,14 +53,14 @@ object PokomonCreatedEvent {
         // VIEW :
         // ------
         val jsonElement = jsonTool.encodeToJsonElement(PokomonView(id, name, birth))
-        dataBaseViewPokomon.createView(Pokomon.categoryView, id, jsonElement)
+        inMemoryViewsPokomon.createView(Pokomon.categoryView, id, jsonElement)
 
         // --------------------
         // VIEW EVENT HANDLER :
         // --------------------
         addViewEventToEventListener(
             Pokomon.categoryEvent,
-            jsonTool.decodeFromJsonElement<PokomonView>(dataBaseViewPokomon.views[Pokomon.categoryView]?.get(id.streamId)!!)
+            jsonTool.decodeFromJsonElement<PokomonView>(inMemoryViewsPokomon.views[Pokomon.categoryView]?.get(id.streamId)!!)
         )
 
         // -------

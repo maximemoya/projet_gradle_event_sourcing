@@ -24,16 +24,16 @@ data class ViewsHashMap(
         mutableMapOf()
 )
 
-val dataBaseViewV1 = ViewsHashMap()
+val inMemoryOldDataBaseViewV1 = ViewsHashMap()
 
 // -------------------
 // GET DataBaseView V1
 // -------------------
 inline fun <reified T : ViewEvent> getViewFromCategoryAndId(aggregateCategoryView: String, id: UUID): T? =
-    dataBaseViewV1.views[aggregateCategoryView]?.get(id)?.let { jsonTool.decodeFromJsonElement<T>(it) }
+    inMemoryOldDataBaseViewV1.views[aggregateCategoryView]?.get(id)?.let { jsonTool.decodeFromJsonElement<T>(it) }
 
 inline fun <reified T : ViewEvent> getViewsFromCategory(aggregateCategoryView: String): List<T> {
-    val views = dataBaseViewV1.views[aggregateCategoryView]
+    val views = inMemoryOldDataBaseViewV1.views[aggregateCategoryView]
     return views?.mapNotNull { view ->
         jsonTool.decodeFromJsonElement<T>(view.value)
     } ?: return listOf()
@@ -43,8 +43,8 @@ inline fun <reified T : ViewEvent> getViewsFromCategory(aggregateCategoryView: S
 // DELETE DataBaseView V1
 // ----------------------
 fun deleteViewFromCategoryAndId(aggregateCategoryView: String, id: UUID): Boolean {
-    val result = dataBaseViewV1.views[aggregateCategoryView]?.remove(id) != null
-    File("save/event_sourcing/debugViewsKobolt.json").writeText(jsonTool.encodeToString(dataBaseViewV1))
+    val result = inMemoryOldDataBaseViewV1.views[aggregateCategoryView]?.remove(id) != null
+    File("save/event_sourcing/debugViewsKobolt.json").writeText(jsonTool.encodeToString(inMemoryOldDataBaseViewV1))
     return result
 }
 
@@ -52,7 +52,7 @@ fun deleteViewFromCategoryAndId(aggregateCategoryView: String, id: UUID): Boolea
 // DataBaseGenericView V1
 // ----------------------
 @Serializable
-data class DataBaseGenericView<T : Id>(
+data class InMemoryDataBaseGenericView<T : Id>(
     val views: MutableMap<String, MutableMap<String, JsonElement>> = mutableMapOf()
 ) {
     fun createView(categoryView: String, id: T, jsonElement: JsonElement) {
@@ -79,7 +79,7 @@ data class DataBaseGenericView<T : Id>(
         if (result) {
             File("save/event_sourcing/debug_$categoryView.json").writeText(
                 jsonTool.encodeToString(
-                    allDataBaseGenericView[categoryView]
+                    allInMemoryDataBaseGenericView[categoryView]
                 )
             )
         }
@@ -87,9 +87,9 @@ data class DataBaseGenericView<T : Id>(
     }
 }
 
-val dataBaseViewKobolt = DataBaseGenericView<KoboltId>()
-val dataBaseViewPokomon = DataBaseGenericView<PokomonId>()
-val allDataBaseGenericView = mapOf(
-    Kobolt.categoryView to dataBaseViewKobolt,
-    Pokomon.categoryView to dataBaseViewPokomon,
+val inMemoryViewsKobolt = InMemoryDataBaseGenericView<KoboltId>()
+val inMemoryViewsPokomon = InMemoryDataBaseGenericView<PokomonId>()
+val allInMemoryDataBaseGenericView = mapOf(
+    Kobolt.categoryView to inMemoryViewsKobolt,
+    Pokomon.categoryView to inMemoryViewsPokomon,
 )

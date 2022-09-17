@@ -1,5 +1,7 @@
 package fr.maxime.kobolt.query
 
+import fr.maxime.exposed.KoboltViewsTable
+import fr.maxime.exposed.dataBaseViews
 import fr.maxime.kobolt.Kobolt
 import fr.maxime.kobolt.command.KoboltRebirthEvent
 import fr.maxime.kobolt.command.KoboltRenamedEvent
@@ -7,12 +9,14 @@ import fr.maxime.kobolt.kobolt_id.KoboltId
 import fr.maxime.technicals.Event
 import fr.maxime.technicals.InstantSerializer
 import fr.maxime.technicals.ViewEvent
-import fr.maxime.technicals.allDataBaseGenericView
-import fr.maxime.technicals.dataBaseViewKobolt
+import fr.maxime.technicals.allInMemoryDataBaseGenericView
+import fr.maxime.technicals.inMemoryViewsKobolt
 import fr.maxime.technicals.jsonTool
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.encodeToJsonElement
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import java.io.File
 import java.time.Instant
 
@@ -37,13 +41,19 @@ data class KoboltView(
                 val data = KoboltRenamedEvent.getData(event.data)
                 if (data != null) {
                     val view =
-                        dataBaseViewKobolt.getViewFromCategoryAndId<KoboltView>(Kobolt.categoryView, data.koboltId)
+                        inMemoryViewsKobolt.getViewFromCategoryAndId<KoboltView>(Kobolt.categoryView, data.koboltId)
                     if (view != null) {
                         koboltView = view.copy(name = data.name)
-                        dataBaseViewKobolt.views[Kobolt.categoryView]?.set(
+                        inMemoryViewsKobolt.views[Kobolt.categoryView]?.set(
                             data.koboltId.streamId,
                             jsonTool.encodeToJsonElement(koboltView)
                         )
+                    }
+
+                    transaction(dataBaseViews) {
+                        KoboltViewsTable.update( { KoboltViewsTable.koboltId eq data.koboltId.streamId } ) {
+                            it[name] = data.name
+                        }
                     }
                 }
             }
@@ -52,13 +62,19 @@ data class KoboltView(
                 val data = KoboltRebirthEvent.getData(event.data)
                 if (data != null) {
                     val view =
-                        dataBaseViewKobolt.getViewFromCategoryAndId<KoboltView>(Kobolt.categoryView, data.koboltId)
+                        inMemoryViewsKobolt.getViewFromCategoryAndId<KoboltView>(Kobolt.categoryView, data.koboltId)
                     if (view != null) {
                         koboltView = view.copy(birth = data.birth)
-                        dataBaseViewKobolt.views[Kobolt.categoryView]?.set(
+                        inMemoryViewsKobolt.views[Kobolt.categoryView]?.set(
                             data.koboltId.streamId,
                             jsonTool.encodeToJsonElement(koboltView)
                         )
+                    }
+
+                    transaction(dataBaseViews) {
+                        KoboltViewsTable.update( { KoboltViewsTable.koboltId eq data.koboltId.streamId } ) {
+                            it[birth] = data.birth
+                        }
                     }
                 }
             }
@@ -66,7 +82,7 @@ data class KoboltView(
         }
 
         File("save/event_sourcing/debug_${Kobolt.categoryView}.json")
-            .writeText(jsonTool.encodeToString(allDataBaseGenericView[Kobolt.categoryView]))
+            .writeText(jsonTool.encodeToString(allInMemoryDataBaseGenericView[Kobolt.categoryView]))
 
         return koboltView
     }
