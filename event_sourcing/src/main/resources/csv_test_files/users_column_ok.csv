@@ -1,0 +1,4 @@
+Email,              Prénom, Nom,        Identifiant,    Classes,        Mot de passe,   Friends
+toto@gmail.com,     Toto,   Legrand,    toto,           [1A,2A,3A],     pass-toto,      [sam,willy,arnold]
+toto2@gmail.com,    Toto2,  Legrand2,   toto2,          [1B,2B,3B],     pass-toto2,     [toto,willy,arnold]
+toto3@gmail.com,    Toto3,  Legrand3,   toto3,          [1C,2C,3C],     pass-toto3,     [toto,toto2,arnold]

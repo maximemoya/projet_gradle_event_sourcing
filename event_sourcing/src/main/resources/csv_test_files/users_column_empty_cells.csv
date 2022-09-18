@@ -1,0 +1,6 @@
+Prénom, Nom,        Identifiant,    Classes,        Mot de passe,   Friends,                Email,
+Toto,   Legrand,    toto,           [1A,2A,3A],     pass-toto,      [sam,willy,arnold],     toto@gmail.com
+Toto2,  Legrand2,   ,               ,               ,               [toto,willy,arnold],
+,       ,           toto3,          [1C,2C,3C],     pass-toto3,     [toto,toto2,arnold],
+
+Jojo,   Duval,      jojo,           [1A,2A,3A],     pass-jojo,      ,                       jojo@gmail.com,

@@ -1,10 +1,10 @@
-package fr.maxime.excel_adapter.excel_file_reader.technicals
+package fr.maxime.adapters.excel_adapter.excel_file_reader.technicals
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import fr.maxime.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType.Text
-import fr.maxime.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType.TextDate
-import fr.maxime.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType.TextIterable
+import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType.Text
+import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType.TextDate
+import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType.TextIterable
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.io.InputStream
 
@@ -25,14 +25,14 @@ data class ExcelReaderResult<out T>(
 
 inline fun <reified T> readExcelFileFromXlsxInputStream(
     excelFileXlsxInputStream: InputStream,
-    excelColumns: List<ExcelReaderColumn>,
+    excelObjectColumns: List<ExcelReaderColumn>,
 ): ExcelReaderResult<T> {
 
     val workbook = WorkbookFactory.create(excelFileXlsxInputStream)
     val sheet = workbook.getSheetAt(0)
-    val columnsObjectNames = excelColumns.map { it.name }
-    val columnsObjectNamesRequired = excelColumns.filter { !it.optional }.map { it.name }
-    val columnsObjectNamesOptional = excelColumns.filter { it.optional }.map { it.name }
+    val columnsObjectNames = excelObjectColumns.map { it.name }
+    val columnsObjectNamesRequired = excelObjectColumns.filter { !it.optional }.map { it.name }
+    val columnsObjectNamesOptional = excelObjectColumns.filter { it.optional }.map { it.name }
     val columnsNamesInFile = mutableListOf<String>()
     val objMapList = mutableListOf<Map<String, Any?>>()
     val errorLogs = mutableListOf<String>()
@@ -43,7 +43,7 @@ inline fun <reified T> readExcelFileFromXlsxInputStream(
 
             0 -> {
 
-                // init mapColumns:
+                // init columnNames:
                 for (cell in row) {
                     val columnName = "${sheet.getRow(0).getCell(cell.columnIndex)}".trim()
                     columnsNamesInFile.add(columnName)
@@ -78,7 +78,7 @@ inline fun <reified T> readExcelFileFromXlsxInputStream(
 
                     if(columnsObjectNames.contains(columnName)){
 
-                        excelColumns.forEach { excelColumn ->
+                        excelObjectColumns.forEach { excelColumn ->
                             if (excelColumn.name == columnName && columnValue == "") {
                                 columnValue = null
                                 if (!excelColumn.optional) {

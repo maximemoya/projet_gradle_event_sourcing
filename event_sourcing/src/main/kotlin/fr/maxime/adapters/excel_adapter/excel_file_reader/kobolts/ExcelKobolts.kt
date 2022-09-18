@@ -1,9 +1,9 @@
-package fr.maxime.excel_adapter.excel_file_reader.kobolts
+package fr.maxime.adapters.excel_adapter.excel_file_reader.kobolts
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import fr.maxime.excel_adapter.excel_file_reader.technicals.ExcelReaderColumn
-import fr.maxime.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType.TextDate
-import fr.maxime.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType.TextIterable
+import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.ExcelReaderColumn
+import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType.TextDate
+import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType.TextIterable
 
 val excelKoboltCreationColumns = listOf(
     ExcelReaderColumn(

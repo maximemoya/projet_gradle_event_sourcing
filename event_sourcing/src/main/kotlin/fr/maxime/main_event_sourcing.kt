@@ -1,8 +1,8 @@
 package fr.maxime
 
-import fr.maxime.excel_adapter.excel_file_reader.kobolts.ExcelKoboltCreationDto
-import fr.maxime.excel_adapter.excel_file_reader.kobolts.excelKoboltCreationColumns
-import fr.maxime.excel_adapter.excel_file_reader.technicals.readExcelFileFromXlsxInputStream
+import fr.maxime.adapters.excel_adapter.excel_file_reader.kobolts.ExcelKoboltCreationDto
+import fr.maxime.adapters.excel_adapter.excel_file_reader.kobolts.excelKoboltCreationColumns
+import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.readExcelFileFromXlsxInputStream
 import fr.maxime.exposed.KoboltViewsTable
 import fr.maxime.exposed.dataBaseViews
 import fr.maxime.kobolt.Kobolt

@@ -1,0 +1,4 @@
+Prénom,     Identifiant,    Classes,        Mot de passe,     Friends
+Toto,       toto,           [1A,2A,3A],     pass-toto,        [sam,willy,arnold]
+Toto2,      toto2,          [1B,2B,3B],     pass-toto2,       [toto,willy,arnold]
+Toto3,      toto3,          [1C,2C,3C],     pass-toto3,       [toto,toto2,arnold]

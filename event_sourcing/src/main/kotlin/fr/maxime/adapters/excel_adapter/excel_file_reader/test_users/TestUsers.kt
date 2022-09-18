@@ -1,9 +1,9 @@
-package fr.maxime.excel_adapter.excel_file_reader.test_users
+package fr.maxime.adapters.excel_adapter.excel_file_reader.test_users
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import fr.maxime.excel_adapter.excel_file_reader.technicals.ExcelReaderColumn
-import fr.maxime.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType
-import fr.maxime.excel_adapter.excel_file_reader.technicals.readExcelFileFromXlsxInputStream
+import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.ExcelReaderColumn
+import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType
+import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.readExcelFileFromXlsxInputStream
 import java.io.InputStream
 
 private val excelUserCreationColumns = listOf(
@@ -36,7 +36,7 @@ private fun testExcelReader(inputStreamUsers: List<InputStream?>) {
             // EXCEL READER:
             val result = readExcelFileFromXlsxInputStream<ExcelUserCreationDto>(
                 excelFileXlsxInputStream = inputStream,
-                excelColumns = excelUserCreationColumns,
+                excelObjectColumns = excelUserCreationColumns,
             )
 
             // LOG:
