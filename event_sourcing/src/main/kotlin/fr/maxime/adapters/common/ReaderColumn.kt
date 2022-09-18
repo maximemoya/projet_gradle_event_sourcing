@@ -9,3 +9,5 @@ class ReaderColumn(
     val optional: Boolean = false,
     val columnType: ReaderColumnType = ReaderColumnType.Text,
 )
+
+// work in progress
