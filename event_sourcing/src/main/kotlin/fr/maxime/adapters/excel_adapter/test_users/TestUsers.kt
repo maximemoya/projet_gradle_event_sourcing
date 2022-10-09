@@ -1,9 +1,9 @@
-package fr.maxime.adapters.excel_adapter.excel_file_reader.test_users
+package fr.maxime.adapters.excel_adapter.test_users
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.ExcelReaderColumn
-import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType
-import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.readExcelFileFromXlsxInputStream
+import fr.maxime.adapters.excel_adapter.technicals.ExcelReaderColumn
+import fr.maxime.adapters.excel_adapter.technicals.ExcelReaderColumnType
+import fr.maxime.adapters.excel_adapter.technicals.readExcelFileFromXlsxInputStream
 import java.io.InputStream
 
 private val excelUserCreationColumns = listOf(

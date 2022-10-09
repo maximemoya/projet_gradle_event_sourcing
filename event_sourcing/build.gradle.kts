@@ -30,21 +30,30 @@ dependencies {
 
     implementation("com.auth0:java-jwt:3.19.2")
 
+    // data-base
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
 //    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
-
     implementation("org.postgresql:postgresql:42.3.6")
     implementation("org.flywaydb:flyway-core:8.5.12")
 //    implementation("com.zaxxer:HikariCP:5.0.1")
 //    implementation("com.h2database:h2:2.1.210")
 
-    implementation("org.apache.poi:poi-ooxml:4.1.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    // excel and csv
+    implementation("org.apache.poi:poi-ooxml:5.2.2")
+    implementation("org.apache.commons:commons-csv:1.9.0")
+
+    // arrow effect
+    implementation(libs.arrowCore)
+    implementation(libs.kotlinxCoroutines)
 
     implementation("org.junit.jupiter:junit-jupiter:5.8.1")
-    testImplementation ("org.jetbrains.kotlin:kotlin-test-common")
+//    testImplementation ("org.jetbrains.kotlin:kotlin-test-common")
+
+    testImplementation("io.kotest:kotest-runner-junit5:$version")
+    testImplementation("io.kotest:kotest-assertions-core:$version")
+    testImplementation("io.kotest:kotest-property:$version")
 
 //    testImplementation(libs.junit)
 //    testImplementation(libs.kotestFramework)

@@ -1,0 +1,4 @@
+Email,Nom,Prénom,Identifiant,Classes,Mot de passe,Friends
+email,name,first,pseudo,"g,g2,g3",password,friend
+
+email,name,first, pseudo ,   "g,g2,g3"  ,   ,   friend

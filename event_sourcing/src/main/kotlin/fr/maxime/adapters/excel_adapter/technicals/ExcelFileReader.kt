@@ -1,10 +1,10 @@
-package fr.maxime.adapters.excel_adapter.excel_file_reader.technicals
+package fr.maxime.adapters.excel_adapter.technicals
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType.Text
-import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType.TextDate
-import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.ExcelReaderColumnType.TextIterable
+import fr.maxime.adapters.excel_adapter.technicals.ExcelReaderColumnType.Text
+import fr.maxime.adapters.excel_adapter.technicals.ExcelReaderColumnType.TextDate
+import fr.maxime.adapters.excel_adapter.technicals.ExcelReaderColumnType.TextIterable
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.io.InputStream
 
@@ -20,7 +20,8 @@ class ExcelReaderColumn(
 
 data class ExcelReaderResult<out T>(
     val results: List<T> = listOf(),
-    val errors: List<String> = listOf()
+    val errors: List<String> = listOf(),
+    val warnings: List<String> = listOf(),
 )
 
 inline fun <reified T> readExcelFileFromXlsxInputStream(
@@ -36,6 +37,7 @@ inline fun <reified T> readExcelFileFromXlsxInputStream(
     val columnsNamesInFile = mutableListOf<String>()
     val objMapList = mutableListOf<Map<String, Any?>>()
     val errorLogs = mutableListOf<String>()
+    val warningLogs = mutableListOf<String>()
 
     for (row in sheet) {
 
@@ -57,7 +59,7 @@ inline fun <reified T> readExcelFileFromXlsxInputStream(
                 }
                 columnsObjectNamesOptional.forEach { columnNameOptional ->
                     if (!columnsNamesInFile.contains(columnNameOptional)) {
-                        errorLogs.add("\n/Warning\\ the optional column name: '$columnNameOptional' is not present in Excel input file")
+                        warningLogs.add("\n/Warning\\ the optional column name: '$columnNameOptional' is not present in Excel input file")
                     }
                 }
                 if (errorLogs.size > 0) {

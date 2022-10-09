@@ -21,6 +21,93 @@ data class CsvReaderResult<out T>(
     val errors: List<String> = listOf()
 )
 
+inline fun <reified T> readCsvFileFromInputStream(
+    inputStream: InputStream,
+    csvObjectColumns: List<CsvReaderColumn>
+): CsvReaderResult<T> {
+
+    val delimiterColumn = ";"
+    val delimiterArray = ","
+    val columnsObjectNames = csvObjectColumns.map { it.name }
+    val columnsObjectNamesRequired = csvObjectColumns.filter { !it.optional }.map { it.name }
+    val columnsObjectNamesOptional = csvObjectColumns.filter { it.optional }.map { it.name }
+    var columnsNamesInFile: List<String>
+    val columnsMapInFile = mutableMapOf<Int, String>()
+    val objMapList = mutableListOf<Map<String, Any?>>()
+    val errorLogs = mutableListOf<String>()
+
+    val rows = InputStreamReader(inputStream).readLines()
+    rows.forEachIndexed { indexRow, row ->
+        if (indexRow == 0) {
+
+            // init columnNames:
+            columnsNamesInFile = row.split(delimiterColumn).map { it.trim() }
+            columnsNamesInFile.forEachIndexed { i, name ->
+                columnsMapInFile[i] = name
+            }
+
+            // check columnNames errors:
+            columnsObjectNamesRequired.forEach { columnNameRequired ->
+                if (!columnsNamesInFile.contains(columnNameRequired)) {
+                    errorLogs.add("\n!Error! the required column name: '$columnNameRequired' is not present in Csv input file")
+                }
+            }
+            columnsObjectNamesOptional.forEach { columnNameOptional ->
+                if (!columnsNamesInFile.contains(columnNameOptional)) {
+                    errorLogs.add("\n/Warning\\ the optional column name: '$columnNameOptional' is not present in Csv input file")
+                }
+            }
+            if (errorLogs.size > 0) {
+                errorLogs.add("\n=> the list of required columns is: $columnsObjectNamesRequired")
+                errorLogs.add("\n=> the list of optional columns is: $columnsObjectNamesOptional")
+            }
+
+        } else {
+
+            val objMap = mutableMapOf<String, Any?>()
+            val errorsBuffer = mutableListOf<String>()
+
+            val values = row.split(delimiterColumn)
+            values.forEachIndexed { indexCell, value ->
+
+                val columnName = columnsMapInFile[indexCell]?.trim()
+                var columnValue: Any? = value.trim()
+
+                if (columnName != null && columnsObjectNames.contains(columnName)) {
+
+                    csvObjectColumns.forEach { csvColumn ->
+
+                        if (csvColumn.name == columnName && value.isBlank()) {
+                            columnValue = null
+                            if (!csvColumn.optional) {
+                                errorsBuffer.add("\n!Error! at row: (${indexRow + 1}) in column: '$columnName' => find empty cell for required parameter")
+                            }
+                        } else if (csvColumn.name == columnName && csvColumn.columnType == CsvReaderColumnType.TextIterable) {
+                            columnValue = (columnValue as String).split(delimiterArray).map { it.trim() }
+                        }
+                    }
+                    objMap[columnName] = columnValue
+                }
+            }
+            objMapList.add(objMap)
+            errorLogs.addAll(errorsBuffer)
+        }
+    }
+
+    val mapper = jacksonObjectMapper()
+    val jsons = objMapList.map { user -> mapper.writeValueAsString(user) }
+    val userObjects: List<T> = jsons.mapNotNull { json ->
+        try {
+            mapper.readValue<T>(json)
+        } catch (e: Exception) {
+            errorLogs.add("\ncan not deserialize ${T::class.java.simpleName} from : $json")
+            null
+        }
+    }
+
+    return (CsvReaderResult(userObjects, errorLogs))
+}
+
 /**
  * Comma Separated Values
  * improved with array
@@ -30,7 +117,7 @@ data class CsvReaderResult<out T>(
  * HEADER : Column1,Column2,Column3
  * VALUES : valeur1,[pierre,paul,jacques],valeur2
  */
-inline fun <reified T> readCsvFileFromInputStream(
+inline fun <reified T> readCsvMaximArrayFileFromInputStream(
     inputStream: InputStream,
     csvObjectColumns: List<CsvReaderColumn>
 ): CsvReaderResult<T> {

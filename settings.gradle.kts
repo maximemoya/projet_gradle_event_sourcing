@@ -1,4 +1,4 @@
-rootProject.name = "projet_gradle_2"
+rootProject.name = "project_gradle_2"
 include("event_sourcing")
 
 val kotestVersion = "5.3.1"

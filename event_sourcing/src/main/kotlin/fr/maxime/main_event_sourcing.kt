@@ -1,8 +1,8 @@
 package fr.maxime
 
-import fr.maxime.adapters.excel_adapter.excel_file_reader.kobolts.ExcelKoboltCreationDto
-import fr.maxime.adapters.excel_adapter.excel_file_reader.kobolts.excelKoboltCreationColumns
-import fr.maxime.adapters.excel_adapter.excel_file_reader.technicals.readExcelFileFromXlsxInputStream
+import fr.maxime.adapters.excel_adapter.kobolts.ExcelKoboltCreationDto
+import fr.maxime.adapters.excel_adapter.kobolts.excelKoboltCreationColumns
+import fr.maxime.adapters.excel_adapter.technicals.readExcelFileFromXlsxInputStream
 import fr.maxime.exposed.KoboltViewsTable
 import fr.maxime.exposed.dataBaseViews
 import fr.maxime.kobolt.Kobolt
@@ -56,9 +56,10 @@ fun main() {
 
 //    scenarioKoboltA()
 //    scenarioPokomonA()
+
 //    scenarioKoboltB()
 
-    scenarioHttp4K()
+//    scenarioHttp4K()
 
 }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import fr.maxime.adapters.csv_adapter.technicals.CsvReaderColumn
 import fr.maxime.adapters.csv_adapter.technicals.CsvReaderColumnType
 import fr.maxime.adapters.csv_adapter.technicals.readCsvFileFromInputStream
+import fr.maxime.adapters.csv_adapter.technicals.readCsvMaximArrayFileFromInputStream
 
 private val csvUserCreationColumns = listOf(
     CsvReaderColumn("Prénom"),
@@ -25,20 +26,18 @@ private data class CsvUserCreationDto(
     @JsonProperty("Friends") val friends: Set<String>?,
 )
 
-fun testCsvReader() {
+fun testCsvPipeReader() {
 
     class Test() {}
 
-    val csvFileOK = "csv_test_files/users_column_ok.csv"
-    val csvFileColumnEmptyCells = "csv_test_files/users_column_empty_cells.csv"
-    val csvFileColumnArrayProblem = "csv_test_files/users_column_with_array_problem.csv"
-    val csvFileColumnMissing = "csv_test_files/users_column_missing.csv"
+    val csvPipeFileOK = "csv_test_files/users_column_pipe_version_ok.csv"
+    val csvPipeFileEmptyCell = "csv_test_files/users_column_pipe_version_empty_cells.csv"
+    val csvPipeFileMissing = "csv_test_files/users_column_pipe_version_missing.csv"
 
     val listInputStream = listOf(
-        Test::class.java.classLoader.getResourceAsStream(csvFileOK),
-        Test::class.java.classLoader.getResourceAsStream(csvFileColumnEmptyCells),
-        Test::class.java.classLoader.getResourceAsStream(csvFileColumnArrayProblem),
-        Test::class.java.classLoader.getResourceAsStream(csvFileColumnMissing),
+        Test::class.java.classLoader.getResourceAsStream(csvPipeFileOK),
+        Test::class.java.classLoader.getResourceAsStream(csvPipeFileEmptyCell),
+        Test::class.java.classLoader.getResourceAsStream(csvPipeFileMissing),
     )
 
     listInputStream.forEachIndexed { index, inputStream ->
@@ -63,6 +62,45 @@ fun testCsvReader() {
 
 }
 
+fun testCsvMaximArrayReader() {
+
+    class Test() {}
+
+    val csvFileOK = "csv_test_files/users_column_ok.csv"
+    val csvFileColumnEmptyCells = "csv_test_files/users_column_empty_cells.csv"
+    val csvFileColumnArrayProblem = "csv_test_files/users_column_with_array_problem.csv"
+    val csvFileColumnMissing = "csv_test_files/users_column_missing.csv"
+
+    val listInputStream = listOf(
+        Test::class.java.classLoader.getResourceAsStream(csvFileOK),
+        Test::class.java.classLoader.getResourceAsStream(csvFileColumnEmptyCells),
+        Test::class.java.classLoader.getResourceAsStream(csvFileColumnArrayProblem),
+        Test::class.java.classLoader.getResourceAsStream(csvFileColumnMissing),
+    )
+
+    listInputStream.forEachIndexed { index, inputStream ->
+        if (inputStream != null) {
+            val result = readCsvMaximArrayFileFromInputStream<CsvUserCreationDto>(
+                inputStream = inputStream,
+                csvObjectColumns = csvUserCreationColumns,
+            )
+
+            println("\nTEST(${index + 1})\n")
+            println("\tResults: (${result.results.size})\n")
+            result.results.forEach { println(it) }
+            println(
+                "\n\t------------" +
+                        "\n\tErrors: (${result.errors.size})"
+            )
+            result.errors.forEach { println(it) }
+        } else {
+            println("ERROR InputStream is null")
+        }
+    }
+
+}
+
 fun main() {
-    testCsvReader()
+//    testCsvMaximArrayReader()
+    testCsvPipeReader()
 }
